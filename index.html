@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>常见算法</title>
+</head>
+<body>
+	<script>
+		// 快速排序
+		const arr = [25,03,49,75,20,39,84,67,23,90,45,02,39,58,42,39,48,67,23,04,95,72,84,36,72,03,84,75,20,38,49,67,20,93,04,75]
+		function quickSort(arr) {
+			if (arr.length <= 1) { return arr; }
+			// 基准索引
+			const pivotIndex = Math.floor(arr.length/2);
+			// 基准值，并删除arr中基准值才能递归化小对比范围，不然是死循环
+			const pivot = arr.splice(pivotIndex,1)[0];
+			// 基准左右值数组
+			const left = [],right = [];
+			// 遍历剩下的所有值与基准值对比
+			arr.forEach((item)=>{
+				if (item < pivot) {
+					left.push(item);
+				}else{
+					right.push(item);
+				}
+			})
+			// 递归left|right（提取各自的基准值再对比，直至arr长度<=1不再对比而返回arr）
+			// 最终返回left+基准值+right
+			return quickSort(left).concat(pivot,quickSort(right))
+		}
+		console.log(quickSort([...arr]))
+	</script>
+	<script>
+		// 选择排序
+		function selectionSort(arr) {
+			var len = arr.length;
+			var minIndex, temp;
+			// 少循环最后一项，因为最后一项肯定是被更换到该位置的最大值
+			for (var i = 0; i < len - 1; i++) {
+				minIndex = i;
+				for (var j = i + 1; j < len; j++) {
+					// 循环寻找最小的数
+            		if (arr[j] < arr[minIndex]) {
+            			// 将最小数的索引保存
+                		minIndex = j;
+            		}
+        		}
+        		// 每次循环都将两值进行动态对调
+        		temp = arr[i];
+        		arr[i] = arr[minIndex];
+        		arr[minIndex] = temp;
+    		}
+    		return arr;
+		}
+		console.log(selectionSort([...arr]))
+	</script>
+	<script>
+		// 归并排序
+		function mergeSort(arr) {
+			// 不会出现空数组的情况，即便是3的时候也是划分为1和2，2再划分为1和1，所以最低是1
+			if (arr.length===1) {return arr}
+			const middle = Math.floor(arr.length/2);
+			const leftArr = arr.slice(0,middle);
+			const rightArr = arr.slice(middle);
+			// 递归到将数组全部拆开再依次merge
+			return merge(mergeSort(leftArr), mergeSort(rightArr))
+		}
+		function merge(leftArr,rightArr) {
+			const result = [];
+			// 第一次merge是两个包含一项的数组，逐步到最初的leftArr|rightArr
+			while (leftArr.length>0 && rightArr.length>0) {
+				// 两个数组比较第一个值（两个数组都各自排序过）
+				if (leftArr[0] < rightArr[0]) {
+					// 取较小值并移除
+					result.push(leftArr.shift())
+				}else{
+					result.push(rightArr.shift())
+				}
+			}
+			return result.concat(leftArr).concat(rightArr)
+		}
+		console.log(mergeSort([...arr]))
+	</script>
+	<script>
+		// 插入排序
+		function insertionSort(arr) {
+			var len = arr.length,i,j,temp;
+			for (i = 1; i < len; i++) {
+				// 留存需要插入的值，j循环比较中会变更赋值
+				temp = arr[i]
+				// 从当前i索引开始向前循环
+				// i索引前的序列是排好序的
+				for (j = i; j >= 0; j--) {
+					// 始终比较的是初始留存的temp
+					if (arr[j-1]>temp) {
+						// 前一个值大于要插入的值
+						// 需要插入的值位置赋值前一个较大的值
+						// 此条件下不将要插入的值插入，减少交换次数
+						arr[j] = arr[j-1]
+					}else{
+						// 前一个值小于要插入的值
+						// 确定位置后，再将需要插入的值插入在此位置
+						arr[j] = temp
+						// 停止循环比较查找
+						break
+					}
+				}
+			}
+			return arr
+		}
+		console.log(insertionSort([...arr]))
+	</script>
+	<script>
+		// 希尔排序（插入排序的优化）
+		// 希尔排序对增量序列的选择没有严格规定
+		// 一般选 d1 约为 n/2，d2 为 d1/2， d3 为 d2/2 ，…， di = 1
+		// 事例以3+1=4为第二基数（1是第一基数），3倍递增生成gap，即1、4、13...
+		function shellSort(arr) {
+			var len = arr.length,
+				temp,
+				gap = 1;
+        	// 动态定义间隔序列
+        	while(gap < len/3) {
+        		gap = gap*3+1;
+        	}	
+        	for (gap; gap > 0; gap = Math.floor(gap/3)) {
+        		console.log(gap)
+        		for (var i = gap; i < len; i++) {
+        			temp = arr[i];
+        			for (var j = i-gap; j >= 0 && arr[j] > temp; j -= gap) {
+        				arr[j+gap] = arr[j];
+        			}
+        			arr[j+gap] = temp;
+        		}
+        	}
+        	return arr;
+    	}
+    	console.log(shellSort([...arr]))
+    	// d1 约为 n/2，d2 为 d1/2， d3 为 d2/2 ，…， di = 1
+    	function shellSort2(array) {
+    		function swap(array, i, k) {
+        		var temp = array[i];
+        		array[i] = array[k];
+        		array[k] = temp;
+    		}
+    		var length = array.length,
+        		gap = Math.floor(length / 2);
+    		while (gap > 0) {
+        		for (var i = gap; i < length; i++) {
+            		for (var j = i; 0 < j; j -= gap) {
+                		if (array[j - gap] > array[j]) {
+                    		swap(array, j - gap, j);
+                		} else {
+                    		break;
+                		}
+            		}
+        		}
+        		gap = Math.floor(gap / 2);
+    		}
+    		return array;
+		}
+		console.log(shellSort2([...arr]))
+	</script>
+	<script>
+		// 冒泡排序
+		// 循环比较好相邻的两个值，每次循环冒泡出来一个排好序的值，以此不断减小循环数量
+		function bubbleSort(arr) {
+			var len = arr.length, i, j, temp;
+			// 外层不断减小j循环数量，每次都排好一个，第一次最后一位肯定是最大的，第二次排好后两位
+			// i>0，当=0时只剩一位即是最小值，不再需要排序
+			for (var i = len-1; i > 0; i--) {
+				// 循环比较未排好序的值，循环到i的前一个值
+				for (var j = 0; j < i; j++) {
+					if (arr[j] > arr[j+1]) {
+						temp = arr[j];
+						arr[j] = arr[j+1];
+						arr[j+1] = temp;
+					}
+				}
+			}
+			return arr
+		}
+		console.log(bubbleSort([...arr]))
+	</script>
+</body>
+</html>
